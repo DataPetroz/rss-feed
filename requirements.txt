@@ -1,5 +1,6 @@
 streamlit
 feedparser
-python-dotenv
-pandas
 requests
+beautifulsoup4
+openai
+python-dotenv
