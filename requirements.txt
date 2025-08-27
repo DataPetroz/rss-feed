@@ -4,6 +4,4 @@ requests
 beautifulsoup4
 openai
 python-dotenv
-os
-urlib3
-ssl
+
