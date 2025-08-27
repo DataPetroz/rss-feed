@@ -22,30 +22,8 @@ from dotenv import load_dotenv
 from openai import AzureOpenAI
 import http.client
 import urllib.parse
-import time
-import os
-import ssl
-import urllib3
- 
-# 1. Disabilita la verifica SSL per tutto il runtime Python
-os.environ['PYTHONHTTPSVERIFY'] = '0'
-try:
-    # Crea un contesto SSL che non verifica i certificati
-    _create_unverified_https_context = ssl._create_unverified_context
-except AttributeError:
-    pass
-else:
-    ssl._create_default_https_context = _create_unverified_https_context
-# 2. Disabilita gli avvisi di sicurezza di urllib3
-warnings.simplefilter("ignore", urllib3.exceptions.InsecureRequestWarning)
-# 3. Monkey Patch della libreria 'requests' per disabilitare la verifica SSL
-original_session_request = requests.Session.request
-def session_request_no_verify(self, *args, **kwargs):
-    kwargs['verify'] = False
-    return original_session_request(self, *args, **kwargs)
-requests.Session.request = session_request_no_verify
 
-# Configurazione logging
+ # Configurazione logging
 logging.basicConfig(level=logging.WARNING)
 
 # Configurazione della pagina
