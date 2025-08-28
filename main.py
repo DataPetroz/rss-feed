@@ -22,6 +22,7 @@ from dotenv import load_dotenv
 from openai import AzureOpenAI
 import http.client
 import urllib.parse
+import time
 
  # Configurazione logging
 logging.basicConfig(level=logging.WARNING)
