@@ -2435,18 +2435,7 @@ def display_blog_draft_section_full_width(article, tab_name, article_index, enab
                     disabled=not has_minimum_content,
                     help="Genera bozza usando tutti i dati disponibili con prioritizzazione per volume" if has_minimum_content else "Devi avere almeno riassunto, keywords o domande"):
                 
-                # Aggiungi tracking
-                streamlit_analytics.track("genera_bozza_blog", {
-                    "tab_name": tab_name,
-                    "article_index": article_index,
-                    "article_title": article['title'][:50],
-                    "has_keywords": len(final_keywords) > 0,
-                    "has_questions": len(final_questions) > 0,
-                    "has_summary": bool(structured_summary),
-                    "has_structure": blog_structure is not None
-                    })
-
-                # Ottieni la struttura personalizzata se disponibile
+                # Ottieni la struttura personalizzata se disponibile PRIMA del tracking
                 structure_key = f"structure_{tab_name}_{article_index}_{hash(article['link'])}"
                 edited_structure_key = f"edited_structure_{tab_name}_{article_index}_{hash(article['link'])}"
                 
@@ -2456,6 +2445,17 @@ def display_blog_draft_section_full_width(article, tab_name, article_index, enab
                 elif structure_key in st.session_state and st.session_state[structure_key]:
                     blog_structure = st.session_state[structure_key]
                 
+                # Aggiungi tracking - ORA blog_structure è definita
+                streamlit_analytics.track("genera_bozza_blog", {
+                    "tab_name": tab_name,
+                    "article_index": article_index,
+                    "article_title": article['title'][:50],
+                    "has_keywords": len(final_keywords) > 0,
+                    "has_questions": len(final_questions) > 0,
+                    "has_summary": bool(structured_summary),
+                    "has_structure": blog_structure is not None
+                })
+
                 with st.spinner("🤖 Generazione bozza blog intelligente..."):
                     blog_draft = generate_intelligent_blog_draft(
                         content=article['full_content'],
