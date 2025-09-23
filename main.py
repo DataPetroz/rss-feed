@@ -2855,7 +2855,7 @@ def main():
             ],
             "Sicurezza": [
                 {"url": "https://www.puntosicuro.it/feed.rss", "source": "Punto Sicuro"},
-                {"url": "https://rss.app/feeds/K7dowcZBM8RXbT0w.xml, "source": "RSS app"}
+                {"url": "https://rss.app/feeds/K7dowcZBM8RXbT0w.xml", "source": "RSS app"}
             ],
             "Sostenibilità": [
                 {"url": "https://rss.app/feeds/JSL6rhDcA8Xix702.xml", "source": "RSS app"}
