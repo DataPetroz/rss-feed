@@ -2855,8 +2855,8 @@ def main():
             ],
             "Sicurezza": [
                 {"url": "https://www.puntosicuro.it/feed.rss", "source": "Punto Sicuro"},
-                {"url": "https://rss.app/feeds/K7dowcZBM8RXbT0w.xml", "source": "RSS app"}
-                {"url": "https://rss.app/feeds/lbhrQtpF3vPaalRl.xml", "source": "Certifico"}
+                {"url": "https://rss.app/feeds/K7dowcZBM8RXbT0w.xml", "source": "RSS app"},
+                {"url": "https://rss.app/feeds/lbhrQtpF3vPaalRl.xml", "source": "Certifico"},
                 {"url": "https://rss.app/feeds/EUBx8RfnzG0NksVC.xml", "source": "PVS"}
             ],
             "Sostenibilità": [
@@ -2864,10 +2864,20 @@ def main():
             ],
             "Edilizia": [
                 {"url": "https://rss.app/feeds/xaEyeqF8dPlqNBkC.xml", "source": "RSS app"},
-                {"url": "https://rss.app/feeds/mcFgAYTettUbW4uL.xml", "source": "Teknoring"}
+                {"url": "https://rss.app/feeds/mcFgAYTettUbW4uL.xml", "source": "Teknoring"},
+                {"url": "https://rss.app/feeds/4LtvXUj3HfZTGjp3.xml", "source": "Ingenio"},
+                {"url": "https://rss.app/feeds/mIWnpHFRX9qdUk2T.xml", "source": "Ediltecnico"},
+                {"url": "https://rss.app/feeds/5qjAycQkiLnx3J9Z.xml", "source": "Il giornale dell'ingeniere"},
+                {"url": "https://rss.app/feeds/BslWyLg0K7w9l8JS.xml", "source": "Edilizia.com"},
+                {"url": "https://rss.app/feeds/IKoHHF0URcI5uwEe.xml", "source": "Giuda edilizia"},
+                {"url": "https://rss.app/feeds/LtaLGxSQkKp53n8P.xml", "source": "Ferrutensil"},
+                {"url": "https://rss.app/feeds/9KhLOkevfMkm2NKu.xml", "source": "Istituto Giordano"}
             ],
             "Industria": [
                 {"url": "https://rss.app/feeds/aTnohv8ofErEMSNm.xml", "source": "RSS app"}
+            ],
+            "Legno": [
+                {"url": "https://rss.app/feeds/gynaWAjP6OwTxznl.xml", "source": "Infobuild"}
             ]
         }
         
