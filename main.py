@@ -2856,12 +2856,15 @@ def main():
             "Sicurezza": [
                 {"url": "https://www.puntosicuro.it/feed.rss", "source": "Punto Sicuro"},
                 {"url": "https://rss.app/feeds/K7dowcZBM8RXbT0w.xml", "source": "RSS app"}
+                {"url": "https://rss.app/feeds/lbhrQtpF3vPaalRl.xml", "source": "Certifico"}
+                {"url": "https://rss.app/feeds/EUBx8RfnzG0NksVC.xml", "source": "PVS"}
             ],
             "Sostenibilità": [
                 {"url": "https://rss.app/feeds/JSL6rhDcA8Xix702.xml", "source": "RSS app"}
             ],
             "Edilizia": [
-                {"url": "https://rss.app/feeds/xaEyeqF8dPlqNBkC.xml", "source": "RSS app"}
+                {"url": "https://rss.app/feeds/xaEyeqF8dPlqNBkC.xml", "source": "RSS app"},
+                {"url": "https://rss.app/feeds/mcFgAYTettUbW4uL.xml", "source": "Teknoring"}
             ],
             "Industria": [
                 {"url": "https://rss.app/feeds/aTnohv8ofErEMSNm.xml", "source": "RSS app"}
