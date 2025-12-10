@@ -669,8 +669,7 @@ def generate_blog_structure(content: str, title: str, system_prompt: str = "") -
                     Restituisci SOLO il JSON della struttura, senza spiegazioni aggiuntive."""
                 }
             ],
-            max_completion_tokens=1500,  # Aumentato per contenere le tracce dettagliate
-            temperature=0.3   # Ridotto per più coerenza
+            max_completion_tokens=1500  # Aumentato per contenere le tracce dettagliate
         )
         
         ai_response = response.choices[0].message.content.strip()
@@ -1172,8 +1171,8 @@ def generate_summary_with_questions(content: str, title: str) -> Dict[str, Any]:
                         Restituisci SOLO il JSON richiesto, senza spiegazioni aggiuntive."""
                 }
             ],
-            max_completion_tokens=1000,
-            temperature=0.3
+            max_completion_tokens=1000
+        
         )
         
         ai_response = response.choices[0].message.content.strip()
@@ -1374,7 +1373,7 @@ def extract_keywords(content: str, title: str) -> List[str]:
                 }
             ],
             max_completion_tokens=200,
-            temperature=0.2
+            
         )
         
         keywords_text = response.choices[0].message.content.strip()
@@ -1496,7 +1495,7 @@ def generate_intelligent_blog_draft(content: str, title: str, structured_summary
                 }
             ],
             max_completion_tokens=1800,
-            temperature=0.4
+        
         )
         
         blog_draft = response.choices[0].message.content.strip()
