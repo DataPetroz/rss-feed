@@ -2960,11 +2960,10 @@ def main():
         # Info per l'utente
         st.info("""
         **Come usare l'app:**
-        1. **Genera riassunto + domande** per ogni articolo che ti interessa
-        2. **Crea struttura personalizzata** con il tuo system prompt specifico 
-        3. **Estrai keywords** con l'AI e personalizzale secondo le tue esigenze
-        4. **Modifica domande e struttura** per adattarle al tuo target
-        5. **Genera la bozza blog** ottimizzata con tutti i tuoi contenuti personalizzati
+        1. **Estrai le keyword con l'AI e personalizzale secondo le tue esigenze
+        2. **Genera riassunto + estrai le domande per ogni articolo che ti interessa
+        3. **Genera la struttura personalizzata della bozza del tuo articolo
+        4. **Genera la bozza del tuo articolo ottimizzata con tutti i tuoi contenuti personalizzati
         """)
         
         # Tabs per le categorie - AGGIORNATA per gestire sottocategorie
