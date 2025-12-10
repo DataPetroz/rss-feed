@@ -669,7 +669,7 @@ def generate_blog_structure(content: str, title: str, system_prompt: str = "") -
                     Restituisci SOLO il JSON della struttura, senza spiegazioni aggiuntive."""
                 }
             ],
-            max_tokens=1500,  # Aumentato per contenere le tracce dettagliate
+            max_completion_tokens=1500,  # Aumentato per contenere le tracce dettagliate
             temperature=0.3   # Ridotto per più coerenza
         )
         
@@ -1172,7 +1172,7 @@ def generate_summary_with_questions(content: str, title: str) -> Dict[str, Any]:
                         Restituisci SOLO il JSON richiesto, senza spiegazioni aggiuntive."""
                 }
             ],
-            max_tokens=1000,
+            max_completion_tokens=1000,
             temperature=0.3
         )
         
@@ -1373,7 +1373,7 @@ def extract_keywords(content: str, title: str) -> List[str]:
                 Restituisci SOLO le keyword separate da virgola, senza spiegazioni aggiuntive."""
                 }
             ],
-            max_tokens=200,
+            max_completion_tokens=200,
             temperature=0.2
         )
         
@@ -1495,7 +1495,7 @@ def generate_intelligent_blog_draft(content: str, title: str, structured_summary
                     Indicare quali cìkeyword inderire e che informazione si andrà a trattare nel caso dei paragrafi"""
                 }
             ],
-            max_tokens=1800,
+            max_completion_tokens=1800,
             temperature=0.4
         )
         
