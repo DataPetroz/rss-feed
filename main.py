@@ -69,7 +69,7 @@ def display_article_card(article: dict, index: int):
             use_container_width=True
         ):
             # Track evento
-            track_event("click_elabora_articolo", "rss_feed_reader", {
+            track_event("click_elabora_articolo", "main", {
                 "article_id": article_id,
                 "article_title": article['title'][:50]
             })
@@ -88,23 +88,16 @@ def display_article_card(article: dict, index: int):
         st.link_button("🔗 Leggi", article['link'], use_container_width=True)
 
 def main():
-    st.title("📰 RSS Feed Reader")
-    st.markdown("*Tool per analizzare e elaborare articoli dai competitor del settore industriale*")
-    
-    # ✅ CONTROLLO NAVIGAZIONE: Esegui prima di qualsiasi altro rendering
+    # ✅ CONTROLLO NAVIGAZIONE: Prima di tutto
     if st.session_state.get('navigate_to_elaboration', False):
         # Reset flag
         st.session_state['navigate_to_elaboration'] = False
         
-        # Naviga alla pagina
-        try:
-            st.switch_page("pages/Elaborazione_Articolo.py")
-        except:
-            try:
-                st.switch_page("Elaborazione_Articolo")
-            except:
-                # Se fallisce, l'utente vedrà il messaggio nella sidebar
-                pass
+        # Naviga alla pagina - con main.py usa questo percorso
+        st.switch_page("pages/Elaborazione_Articolo.py")
+    
+    st.title("📰 RSS Feed Reader")
+    st.markdown("*Tool per analizzare e elaborare articoli dai competitor del settore industriale*")
     
     # Sidebar
     st.sidebar.header("🔍 Controlli")
