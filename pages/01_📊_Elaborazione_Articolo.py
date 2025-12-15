@@ -19,7 +19,6 @@ from utils.ai_services import (
 )
 from utils.ahrefs_api import get_multiple_keywords_volumes
 from utils.analytics import track_event
-import json
 
 st.set_page_config(
     page_title=DETAIL_PAGE_TITLE,
@@ -819,10 +818,10 @@ def display_blog_draft_step(article: Dict[str, Any]):
     # Se bozza non ancora generata
     if st.session_state['blog_draft_generated'] is None:
         # Raccoglie dati da step precedenti - CON SAFE DEFAULTS
-        final_keywords = st.session_state.get('keywords_edited') or []  # FIX: garantisce lista vuota
-        keywords_volumes = st.session_state.get('keywords_volumes') or {}  # FIX: garantisce dict vuoto
-        final_questions = st.session_state.get('questions_edited') or []  # FIX: garantisce lista vuota
-        structured_summary = st.session_state.get('summary_generated') or ''  # FIX: garantisce stringa vuota
+        final_keywords = st.session_state.get('keywords_edited') or []
+        keywords_volumes = st.session_state.get('keywords_volumes') or {}
+        final_questions = st.session_state.get('questions_edited') or []
+        structured_summary = st.session_state.get('summary_generated') or ''
         blog_structure = st.session_state.get('structure_edited', None)
         
         # Calcola info keywords (ora sicuro)
@@ -1080,12 +1079,12 @@ def display_sidebar(article: Dict[str, Any]):
         
         st.markdown("---")
         
-        # Pulsante torna alla lista
+        # ✅ CORRETTO: Pulsante che usa switch_page invece di markdown
         if st.button("⬅️ Torna alla Lista", use_container_width=True, type="primary"):
             track_event("torna_lista", "elaborazione_articolo", {
                 "article_id": st.session_state.get('current_article_id')
             })
-            st.switch_page("RSS_Feed_Reader.py")
+            st.switch_page("main.py")
         
         st.markdown("---")
         
@@ -1167,29 +1166,11 @@ def main():
     # Inizializza session state
     init_session_state()
     
-    # ✅ NUOVO: Leggi articolo da query params se presente
-    query_params = st.query_params
-    
-    if 'data' in query_params and st.session_state['current_article'] is None:
-        try:
-            # Decodifica l'articolo da base64
-            article_b64 = unquote(query_params['data'])
-            article_json = base64.b64decode(article_b64).decode('utf-8')
-            article = json.loads(article_json)
-            
-            # Salva in session state
-            article_id = hashlib.md5(article['link'].encode()).hexdigest()
-            st.session_state['current_article'] = article
-            st.session_state['current_article_id'] = article_id
-            
-        except Exception as e:
-            st.error(f"Errore nel caricamento dell'articolo: {e}")
-    
-    # Verifica che ci sia un articolo
+    # Verifica che ci sia un articolo in session_state
     if st.session_state['current_article'] is None:
         st.warning("⚠️ Nessun articolo selezionato.")
-        if st.button("⬅️ Vai alla Lista"):
-            st.markdown('<a href="/" target="_blank">Torna alla lista</a>', unsafe_allow_html=True)
+        if st.button("⬅️ Vai alla Lista", type="primary"):
+            st.switch_page("main.py")
         st.stop()
     
     article = st.session_state['current_article']
