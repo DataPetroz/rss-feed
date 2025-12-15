@@ -88,13 +88,13 @@ def display_article_card(article: dict, index: int):
         st.link_button("🔗 Leggi", article['link'], use_container_width=True)
 
 def main():
-    # ✅ CONTROLLO NAVIGAZIONE: Prima di tutto
+    # ✅ CONTROLLO NAVIGAZIONE: Usa solo il nome della pagina
     if st.session_state.get('navigate_to_elaboration', False):
         # Reset flag
         st.session_state['navigate_to_elaboration'] = False
         
-        # Naviga alla pagina - con main.py usa questo percorso
-        st.switch_page("pages/Elaborazione_Articolo.py")
+        # ✅ CORRETTO: Usa solo il nome senza "pages/" e senza ".py"
+        st.switch_page("Elaborazione_Articolo")
     
     st.title("📰 RSS Feed Reader")
     st.markdown("*Tool per analizzare e elaborare articoli dai competitor del settore industriale*")
