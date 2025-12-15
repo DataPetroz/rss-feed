@@ -61,45 +61,28 @@ def display_article_card(article: dict, index: int):
         st.markdown(card_html, unsafe_allow_html=True)
     
     with col2:
-        # ✅ METODO A: Callback per salvare prima del click
-        def on_elabora_click():
-            """Callback eseguito quando l'utente clicca su Elabora"""
+        # Bottone che imposta flag di navigazione
+        if st.button(
+            "📊 Elabora", 
+            key=f"elaborate_{article_id}_{index}", 
+            type="primary", 
+            use_container_width=True
+        ):
             # Track evento
             track_event("click_elabora_articolo", "rss_feed_reader", {
                 "article_id": article_id,
                 "article_title": article['title'][:50]
             })
             
-            # Salva articolo e ID in session state
+            # Salva articolo in session state
             st.session_state['current_article'] = article
             st.session_state['current_article_id'] = article_id
-        
-        # Bottone con callback
-        if st.button(
-            "📊 Elabora", 
-            key=f"elaborate_{article_id}_{index}", 
-            type="primary", 
-            use_container_width=True,
-            on_click=on_elabora_click  # ✅ Callback eseguito PRIMA della navigazione
-        ):
-            # Dopo il callback, naviga alla pagina
-            try:
-                # Prova prima con solo nome
-                st.switch_page("Elaborazione_Articolo")
-            except Exception as e1:
-                try:
-                    # Fallback: prova con path completo
-                    st.switch_page("pages/Elaborazione_Articolo.py")
-                except Exception as e2:
-                    # Se fallisce tutto, mostra errore user-friendly
-                    st.error("""
-                    ⚠️ Impossibile navigare automaticamente alla pagina di elaborazione.
-                    
-                    **Soluzione:** Usa il menu laterale di Streamlit (freccia in alto a sinistra) 
-                    e seleziona "Elaborazione Articolo" manualmente.
-                    
-                    L'articolo è già stato salvato e sarà disponibile nella pagina.
-                    """)
+            
+            # ✅ Imposta flag per navigazione
+            st.session_state['navigate_to_elaboration'] = True
+            
+            # Forza rerun
+            st.rerun()
         
         # Link all'articolo originale
         st.link_button("🔗 Leggi", article['link'], use_container_width=True)
@@ -107,6 +90,21 @@ def display_article_card(article: dict, index: int):
 def main():
     st.title("📰 RSS Feed Reader")
     st.markdown("*Tool per analizzare e elaborare articoli dai competitor del settore industriale*")
+    
+    # ✅ CONTROLLO NAVIGAZIONE: Esegui prima di qualsiasi altro rendering
+    if st.session_state.get('navigate_to_elaboration', False):
+        # Reset flag
+        st.session_state['navigate_to_elaboration'] = False
+        
+        # Naviga alla pagina
+        try:
+            st.switch_page("pages/Elaborazione_Articolo.py")
+        except:
+            try:
+                st.switch_page("Elaborazione_Articolo")
+            except:
+                # Se fallisce, l'utente vedrà il messaggio nella sidebar
+                pass
     
     # Sidebar
     st.sidebar.header("🔍 Controlli")
