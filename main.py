@@ -93,7 +93,7 @@ def display_article_card(article: dict, index: int):
             })
             
             # ✅ Naviga alla pagina di elaborazione
-            st.switch_page("pages/01_📊_Elaborazione_Articolo.py")
+            st.switch_page("pages/01_Elaborazione_Articolo.py")
         
         st.link_button("🔗 Leggi", article['link'], use_container_width=True)
 
