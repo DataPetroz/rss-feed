@@ -1,5 +1,10 @@
+import json
+import base64
+import hashlib
+from urllib.parse import unquote
 import streamlit as st
 from typing import Dict, Any, List
+from utils.article_store import get_article, init_article_store
 from config.settings import DETAIL_PAGE_TITLE, DETAIL_PAGE_ICON, AHREFS_API_TOKEN
 from utils.ui_components import (
     inject_custom_css, 
@@ -15,7 +20,6 @@ from utils.ai_services import (
 )
 from utils.ahrefs_api import get_multiple_keywords_volumes
 from utils.analytics import track_event
-from utils.temp_storage import get_article
 import json
 
 st.set_page_config(
@@ -1164,34 +1168,41 @@ def main():
     # Inizializza session state
     init_session_state()
     
-    # Leggi articolo da query params
+    # Inizializza article store
+    init_article_store()
+    
+    # ✅ NUOVO: Leggi ID articolo da query params
     query_params = st.query_params
     
     if 'id' in query_params:
         article_id = query_params['id']
         
-        # Se non è già caricato in session state, caricalo dal DB
-        if st.session_state['current_article'] is None or st.session_state.get('current_article_id') != article_id:
-            article = get_article(article_id)
-            
-            if article:
-                st.session_state['current_article'] = article
-                st.session_state['current_article_id'] = article_id
-            else:
-                st.error("❌ Articolo non trovato nel database temporaneo.")
-                st.info("💡 Torna alla lista e seleziona nuovamente l'articolo.")
-                st.markdown('[⬅️ Torna alla lista](/)', unsafe_allow_html=True)
-                st.stop()
+        # Recupera articolo dallo store globale
+        article = get_article(article_id)
+        
+        if article:
+            # Salva in session_state per questa sessione
+            st.session_state['current_article'] = article
+            st.session_state['current_article_id'] = article_id
+        else:
+            st.error("⚠️ Articolo non trovato nello store. Torna alla lista e riprova.")
+            if st.button("⬅️ Torna alla Lista"):
+                st.switch_page("RSS_Feed_Reader.py")
+            st.stop()
     
     # Verifica che ci sia un articolo
-    if st.session_state['current_article'] is None:
+    if st.session_state.get('current_article') is None:
         st.warning("⚠️ Nessun articolo selezionato.")
         st.markdown("""
-        ### Come procedere:
-        1. Torna alla [homepage](/)
-        2. Seleziona un articolo
-        3. Clicca su "📊 Elabora"
+        **Possibili cause:**
+        - Hai aperto questo link direttamente senza passare dalla lista
+        - La sessione è scaduta
+        
+        **Soluzione:** Torna alla lista e seleziona un articolo.
         """)
+        
+        if st.button("⬅️ Vai alla Lista"):
+            st.switch_page("RSS_Feed_Reader.py")
         st.stop()
     
     article = st.session_state['current_article']
