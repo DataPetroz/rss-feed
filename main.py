@@ -61,7 +61,7 @@ def display_article_card(article: dict, index: int):
         st.markdown(card_html, unsafe_allow_html=True)
     
     with col2:
-        # ✅ NUOVO: Usa bottone Streamlit nativo con callback
+        # ✅ FIX: Usa nome pagina senza estensione e senza "pages/"
         if st.button("📊 Elabora", key=f"elaborate_{article_id}_{index}", type="primary", use_container_width=True):
             track_event("click_elabora_articolo", "rss_feed_reader", {
                 "article_id": article_id,
@@ -72,11 +72,10 @@ def display_article_card(article: dict, index: int):
             st.session_state['current_article'] = article
             st.session_state['current_article_id'] = article_id
             
-            # Naviga alla pagina elaborazione
-            st.switch_page("pages/Elaborazione_Articolo.py")
+            # ✅ CORRETTO: usa solo il nome del file senza path e senza .py
+            st.switch_page("Elaborazione_Articolo")
         
         st.link_button("🔗 Leggi", article['link'], use_container_width=True)
-
 
 def main():
     st.title("📰 RSS Feed Reader")
