@@ -1,26 +1,10 @@
-import logging
-import warnings
 import streamlit as st
+from datetime import datetime, timedelta
 from config.settings import RSS_FEEDS, PAGE_TITLE, PAGE_ICON, FEED_CACHE_TTL
 from utils.rss_fetcher import fetch_feed
 from utils.ui_components import inject_custom_css
 from utils.analytics import track_event
-from datetime import datetime, timedelta  # ✅ Aggiungi timedelta
-import hashlib
-import json  # ✅ AGGIUNGI
-import base64  # ✅ AGGIUNGI
-from urllib.parse import quote  # ✅ AGGIUNGI
-
-# Silenzia i warning di ScriptRunContext
-logging.getLogger("streamlit.runtime.scriptrunner_utils.script_run_context").setLevel(logging.ERROR)
-warnings.filterwarnings("ignore", message=".*ScriptRunContext.*")
-
-import streamlit as st
-from config.settings import RSS_FEEDS, PAGE_TITLE, PAGE_ICON, FEED_CACHE_TTL
-from utils.rss_fetcher import fetch_feed
-from utils.ui_components import inject_custom_css
-from utils.analytics import track_event
-import hashlib
+from utils.temp_storage import init_temp_db, save_article
 
 st.set_page_config(
     page_title=PAGE_TITLE,
@@ -35,14 +19,9 @@ inject_custom_css()
 # Tag noindex
 st.markdown('<meta name="robots" content="noindex, nofollow">', unsafe_allow_html=True)
 
-def generate_article_id(article: dict) -> str:
-    """Genera ID univoco per articolo basato sul link"""
-    return hashlib.md5(article['link'].encode()).hexdigest()
-
 
 def display_article_card(article: dict, index: int):
     """Visualizza card articolo con link che apre nuova scheda"""
-    article_id = generate_article_id(article)
     
     # Immagine o placeholder
     if article['has_image'] and article['image_url']:
@@ -70,12 +49,11 @@ def display_article_card(article: dict, index: int):
         st.markdown(card_html, unsafe_allow_html=True)
     
     with col2:
-        # Serializza l'articolo in base64 per passarlo via URL
-        article_json = json.dumps(article, ensure_ascii=False)
-        article_b64 = base64.b64encode(article_json.encode('utf-8')).decode('utf-8')
+        # Salva articolo in DB e crea link
+        article_id = save_article(article)
         
-        # Link HTML che apre in nuova scheda
-        elabora_url = f"/Elaborazione_Articolo?data={quote(article_b64)}"
+        # Link che apre in nuova scheda
+        elabora_url = f"/Elaborazione_Articolo?id={article_id}"
         
         st.markdown(f"""
         <a href="{elabora_url}" target="_blank" style="
@@ -93,7 +71,11 @@ def display_article_card(article: dict, index: int):
         
         st.link_button("🔗 Leggi", article['link'], use_container_width=True)
 
+
 def main():
+    # Inizializza database temporaneo
+    init_temp_db()
+    
     st.title("📰 RSS Feed Reader")
     st.markdown("*Tool per analizzare e elaborare articoli dai competitor del settore industriale*")
     
@@ -107,7 +89,7 @@ def main():
         default=list(RSS_FEEDS.keys())
     )
     
-    # ✅ NUOVO: Filtro range date
+    # Filtro range date
     st.sidebar.markdown("---")
     st.sidebar.subheader("📅 Filtro Date")
     
@@ -122,7 +104,7 @@ def main():
         with col_from:
             date_from = st.date_input(
                 "Da:",
-                value=datetime.now() - timedelta(days=30),  # Default: ultimi 30 giorni
+                value=datetime.now() - timedelta(days=30),
                 max_value=datetime.now(),
                 key="date_from"
             )
@@ -178,14 +160,14 @@ def main():
     # Recupera articoli
     all_articles, feed_stats = get_all_articles()
     
-    # ✅ APPLICA FILTRO DATE
+    # Applica filtro date
     if enable_date_filter and date_from and date_to:
         filtered_by_date = []
         
         for article in all_articles:
             try:
                 # Parse della data articolo (formato: "dd/mm/yyyy HH:MM" o "dd/mm/yyyy")
-                date_str = article['published'].split()[0]  # Prende solo la parte data
+                date_str = article['published'].split()[0]
                 if '/' in date_str:
                     article_date = datetime.strptime(date_str, '%d/%m/%Y').date()
                     
@@ -201,7 +183,7 @@ def main():
         # Info sul filtro applicato
         st.info(f"📅 **Filtro date attivo:** {date_from.strftime('%d/%m/%Y')} - {date_to.strftime('%d/%m/%Y')} | {len(all_articles)} articoli trovati")
     
-    # Statistiche sidebar (aggiornate con filtro date)
+    # Statistiche sidebar
     st.sidebar.markdown("### 📊 Statistiche Feed")
     for category, total_count in feed_stats.items():
         articles_in_category = [a for a in all_articles if a['source_category'].startswith(category)]
@@ -209,7 +191,7 @@ def main():
         
         st.sidebar.metric(
             f"{category}", 
-            f"{len(articles_in_category)}",  # Non mostra più "/total" perché può essere filtrato
+            f"{len(articles_in_category)}",
             delta=f"{images_in_category} con immagini"
         )
     
@@ -232,12 +214,13 @@ def main():
     
     st.markdown("---")
     
-    # TAB PER CATEGORIE (resto del codice rimane uguale)
+    # Tab per categorie
     if len(selected_categories) > 1:
+        # Crea tab: "Tutti" + categorie selezionate
         tab_names = ["Tutti"] + selected_categories
         tabs = st.tabs(tab_names)
         
-        # Tab "Tutti" - ORDINATO PER DATA
+        # Tab "Tutti" - Ordinato per data
         with tabs[0]:
             st.markdown(f"### 📰 Tutti gli articoli ({len(all_articles)})")
             
@@ -257,6 +240,7 @@ def main():
         # Tab per ogni categoria
         for idx, category in enumerate(selected_categories, start=1):
             with tabs[idx]:
+                # Filtra articoli per categoria
                 category_articles = [a for a in all_articles if a['source_category'].startswith(category)]
                 st.markdown(f"### 📰 {category} ({len(category_articles)} articoli)")
                 
@@ -267,12 +251,14 @@ def main():
                     st.info(f"Nessun articolo disponibile per {category}")
     
     else:
+        # Se c'è solo una categoria selezionata, mostra direttamente senza tab
         category_name = selected_categories[0] if selected_categories else "default"
         filtered_articles = [a for a in all_articles if a['source_category'].startswith(category_name)]
         
         st.markdown(f"### 📰 {category_name} ({len(filtered_articles)} articoli)")
         for i, article in enumerate(filtered_articles):
             display_article_card(article, i)
+
 
 if __name__ == "__main__":
     main()
