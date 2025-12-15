@@ -1,56 +1,57 @@
-import sqlite3
-import json
+"""
+Store globale per gli articoli - accessibile da tutte le pagine
+"""
+import streamlit as st
+from typing import Dict, Optional
 import hashlib
-from pathlib import Path
-from typing import Optional, Dict, Any
 
-DB_PATH = Path(__file__).parent.parent / "temp_articles.db"
+def init_article_store():
+    """Inizializza lo store degli articoli in session_state"""
+    if 'articles_store' not in st.session_state:
+        st.session_state.articles_store = {}
 
-def init_temp_db():
-    """Inizializza database temporaneo per articoli"""
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS temp_articles
-                 (id TEXT PRIMARY KEY, 
-                  data TEXT,
-                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-    conn.commit()
-    conn.close()
-
-def save_article(article: Dict[str, Any]) -> str:
-    """Salva articolo e restituisce ID univoco"""
+def store_article(article: Dict) -> str:
+    """
+    Salva un articolo nello store e restituisce il suo ID
+    
+    Args:
+        article: Dictionary con i dati dell'articolo
+        
+    Returns:
+        str: ID univoco dell'articolo
+    """
+    init_article_store()
+    
+    # Genera ID univoco
     article_id = hashlib.md5(article['link'].encode()).hexdigest()
     
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    c = conn.cursor()
-    
-    article_json = json.dumps(article, ensure_ascii=False)
-    
-    c.execute('''INSERT OR REPLACE INTO temp_articles (id, data)
-                 VALUES (?, ?)''', (article_id, article_json))
-    conn.commit()
-    conn.close()
+    # Salva nello store
+    st.session_state.articles_store[article_id] = article
     
     return article_id
 
-def get_article(article_id: str) -> Optional[Dict[str, Any]]:
-    """Recupera articolo dal database tramite ID"""
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    c = conn.cursor()
-    c.execute('SELECT data FROM temp_articles WHERE id = ?', (article_id,))
-    row = c.fetchone()
-    conn.close()
+def get_article(article_id: str) -> Optional[Dict]:
+    """
+    Recupera un articolo dallo store tramite ID
     
-    if not row:
-        return None
-    
-    return json.loads(row[0])
+    Args:
+        article_id: ID univoco dell'articolo
+        
+    Returns:
+        Dict | None: Dati articolo o None se non trovato
+    """
+    init_article_store()
+    return st.session_state.articles_store.get(article_id, None)
 
-def cleanup_old_articles(days: int = 7):
-    """Pulisce articoli più vecchi di N giorni"""
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    c = conn.cursor()
-    c.execute('''DELETE FROM temp_articles 
-                 WHERE created_at < datetime('now', '-' || ? || ' days')''', (days,))
-    conn.commit()
-    conn.close()
+def store_all_articles(articles_list: list):
+    """
+    Salva tutti gli articoli nello store
+    
+    Args:
+        articles_list: Lista di articoli
+    """
+    init_article_store()
+    
+    for article in articles_list:
+        article_id = hashlib.md5(article['link'].encode()).hexdigest()
+        st.session_state.articles_store[article_id] = article
