@@ -4,7 +4,6 @@ import hashlib
 from urllib.parse import unquote
 import streamlit as st
 from typing import Dict, Any, List
-from utils.article_store import get_article, init_article_store
 from config.settings import DETAIL_PAGE_TITLE, DETAIL_PAGE_ICON, AHREFS_API_TOKEN
 from utils.ui_components import (
     inject_custom_css, 
@@ -1168,21 +1167,29 @@ def main():
     # Inizializza session state
     init_session_state()
     
-    # Inizializza article store
-    init_article_store()
+    # ✅ NUOVO: Leggi articolo da query params se presente
+    query_params = st.query_params
     
-    # ✅ SEMPLIFICATO: Usa solo session_state (no query params)
+    if 'data' in query_params and st.session_state['current_article'] is None:
+        try:
+            # Decodifica l'articolo da base64
+            article_b64 = unquote(query_params['data'])
+            article_json = base64.b64decode(article_b64).decode('utf-8')
+            article = json.loads(article_json)
+            
+            # Salva in session state
+            article_id = hashlib.md5(article['link'].encode()).hexdigest()
+            st.session_state['current_article'] = article
+            st.session_state['current_article_id'] = article_id
+            
+        except Exception as e:
+            st.error(f"Errore nel caricamento dell'articolo: {e}")
+    
     # Verifica che ci sia un articolo
-    if st.session_state.get('current_article') is None:
+    if st.session_state['current_article'] is None:
         st.warning("⚠️ Nessun articolo selezionato.")
-        st.markdown("""
-        **Come procedere:**
-        1. Torna alla lista principale
-        2. Clicca su **📊 Elabora** per l'articolo che ti interessa
-        """)
-        
-        if st.button("⬅️ Torna alla Lista", type="primary"):
-            st.switch_page("RSS_Feed_Reader.py")
+        if st.button("⬅️ Vai alla Lista"):
+            st.markdown('<a href="/" target="_blank">Torna alla lista</a>', unsafe_allow_html=True)
         st.stop()
     
     article = st.session_state['current_article']
@@ -1214,4 +1221,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
