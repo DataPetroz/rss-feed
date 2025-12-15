@@ -29,7 +29,7 @@ def generate_article_id(article: dict) -> str:
 
 
 def display_article_card(article: dict, index: int):
-    """Visualizza card articolo con bottone che salva e naviga"""
+    """Visualizza card articolo con bottone che salva e link manuale"""
     article_id = generate_article_id(article)
     
     # Salva articolo nello store globale
@@ -61,37 +61,51 @@ def display_article_card(article: dict, index: int):
         st.markdown(card_html, unsafe_allow_html=True)
     
     with col2:
-        # Bottone che imposta flag di navigazione
-        if st.button(
-            "📊 Elabora", 
-            key=f"elaborate_{article_id}_{index}", 
-            type="primary", 
-            use_container_width=True
-        ):
-            # Track evento
-            track_event("click_elabora_articolo", "main", {
-                "article_id": article_id,
-                "article_title": article['title'][:50]
-            })
-            
-            # Salva articolo in session state
-            st.session_state['current_article'] = article
-            st.session_state['current_article_id'] = article_id
-            
-            # ✅ Imposta flag per navigazione
-            st.session_state['navigate_to_elaboration'] = True
-            
-            # Forza rerun
-            st.rerun()
+        # ✅ SOLUZIONE GARANTITA: Salva + Link manuale
+        button_key = f"elaborate_{article_id}_{index}"
+        
+        # Verifica se l'articolo è stato salvato
+        article_saved = st.session_state.get('last_saved_article_id') == article_id
+        
+        if not article_saved:
+            # Bottone per salvare l'articolo
+            if st.button("📝 Prepara", key=button_key, type="secondary", use_container_width=True):
+                track_event("click_elabora_articolo", "main", {
+                    "article_id": article_id,
+                    "article_title": article['title'][:50]
+                })
+                
+                # Salva articolo
+                st.session_state['current_article'] = article
+                st.session_state['current_article_id'] = article_id
+                st.session_state['last_saved_article_id'] = article_id
+                
+                st.rerun()
+        else:
+            # Mostra link alla pagina elaborazione (usa menu Streamlit nativo)
+            st.success("✅ Salvato!")
+            st.info("👉 Usa il menu ☰ in alto a sinistra e seleziona **'Elaborazione Articolo'**")
         
         # Link all'articolo originale
         st.link_button("🔗 Leggi", article['link'], use_container_width=True)
 
 def main():
-    # ✅ CONTROLLO NAVIGAZIONE: Usa solo il nome della pagina
+def main():
     if st.session_state.get('navigate_to_elaboration', False):
-        # Reset flag
         st.session_state['navigate_to_elaboration'] = False
+        
+        # Prova tutti i formati possibili
+        try:
+            st.switch_page("Elaborazione_Articolo")  # Senza path e estensione
+        except:
+            try:
+                st.switch_page("pages/Elaborazione_Articolo.py")  # Path completo
+            except:
+                try:
+                    st.switch_page("Elaborazione Articolo")  # Con spazio
+                except:
+                    # Mostra all'utente come procedere
+                    st.warning("⚠️ Navigazione automatica non disponibile. Usa il menu ☰ per accedere a 'Elaborazione Articolo'.")
         
         # ✅ CORRETTO: Usa solo il nome senza "pages/" e senza ".py"
         st.switch_page("Elaborazione_Articolo")
