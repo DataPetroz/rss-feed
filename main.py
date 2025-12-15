@@ -29,10 +29,10 @@ def generate_article_id(article: dict) -> str:
 
 
 def display_article_card(article: dict, index: int):
-    """Visualizza card articolo con link che apre nuova pagina"""
+    """Visualizza card articolo con bottone che salva e naviga"""
     article_id = generate_article_id(article)
     
-    # ✅ Salva articolo nello store globale
+    # Salva articolo nello store globale
     store_article(article)
     
     # Immagine o placeholder
@@ -61,22 +61,19 @@ def display_article_card(article: dict, index: int):
         st.markdown(card_html, unsafe_allow_html=True)
     
     with col2:
-        # ✅ Link con solo ID nell'URL
-        elabora_url = f"/Elaborazione_Articolo?id={article_id}"
-        
-        st.markdown(f"""
-        <a href="{elabora_url}" target="_blank" style="
-            display: block;
-            background-color: #3b82f6;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-align: center;
-            text-decoration: none;
-            font-weight: 600;
-            margin-bottom: 8px;
-        ">📊 Elabora</a>
-        """, unsafe_allow_html=True)
+        # ✅ NUOVO: Usa bottone Streamlit nativo con callback
+        if st.button("📊 Elabora", key=f"elaborate_{article_id}_{index}", type="primary", use_container_width=True):
+            track_event("click_elabora_articolo", "rss_feed_reader", {
+                "article_id": article_id,
+                "article_title": article['title'][:50]
+            })
+            
+            # Salva articolo e ID in session state
+            st.session_state['current_article'] = article
+            st.session_state['current_article_id'] = article_id
+            
+            # Naviga alla pagina elaborazione
+            st.switch_page("pages/Elaborazione_Articolo.py")
         
         st.link_button("🔗 Leggi", article['link'], use_container_width=True)
 
