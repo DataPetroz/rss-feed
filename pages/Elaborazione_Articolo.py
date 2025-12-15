@@ -1171,37 +1171,17 @@ def main():
     # Inizializza article store
     init_article_store()
     
-    # ✅ NUOVO: Leggi ID articolo da query params
-    query_params = st.query_params
-    
-    if 'id' in query_params:
-        article_id = query_params['id']
-        
-        # Recupera articolo dallo store globale
-        article = get_article(article_id)
-        
-        if article:
-            # Salva in session_state per questa sessione
-            st.session_state['current_article'] = article
-            st.session_state['current_article_id'] = article_id
-        else:
-            st.error("⚠️ Articolo non trovato nello store. Torna alla lista e riprova.")
-            if st.button("⬅️ Torna alla Lista"):
-                st.switch_page("RSS_Feed_Reader.py")
-            st.stop()
-    
+    # ✅ SEMPLIFICATO: Usa solo session_state (no query params)
     # Verifica che ci sia un articolo
     if st.session_state.get('current_article') is None:
         st.warning("⚠️ Nessun articolo selezionato.")
         st.markdown("""
-        **Possibili cause:**
-        - Hai aperto questo link direttamente senza passare dalla lista
-        - La sessione è scaduta
-        
-        **Soluzione:** Torna alla lista e seleziona un articolo.
+        **Come procedere:**
+        1. Torna alla lista principale
+        2. Clicca su **📊 Elabora** per l'articolo che ti interessa
         """)
         
-        if st.button("⬅️ Vai alla Lista"):
+        if st.button("⬅️ Torna alla Lista", type="primary"):
             st.switch_page("RSS_Feed_Reader.py")
         st.stop()
     
@@ -1234,3 +1214,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
