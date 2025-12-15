@@ -4,6 +4,7 @@ import hashlib
 from urllib.parse import unquote
 import streamlit as st
 from typing import Dict, Any, List
+from utils.temp_storage import get_article
 from config.settings import DETAIL_PAGE_TITLE, DETAIL_PAGE_ICON, AHREFS_API_TOKEN
 from utils.ui_components import (
     inject_custom_css, 
@@ -1167,29 +1168,33 @@ def main():
     # Inizializza session state
     init_session_state()
     
-    # ✅ NUOVO: Leggi articolo da query params se presente
+    # ✅ Leggi articolo da query params se presente
     query_params = st.query_params
     
-    if 'data' in query_params and st.session_state['current_article'] is None:
-        try:
-            # Decodifica l'articolo da base64
-            article_b64 = unquote(query_params['data'])
-            article_json = base64.b64decode(article_b64).decode('utf-8')
-            article = json.loads(article_json)
+    if 'id' in query_params:
+        article_id = query_params['id']
+        
+        # Se non è già caricato in session state, caricalo dal DB
+        if st.session_state['current_article'] is None or st.session_state['current_article_id'] != article_id:
+            article = get_article(article_id)
             
-            # Salva in session state
-            article_id = hashlib.md5(article['link'].encode()).hexdigest()
-            st.session_state['current_article'] = article
-            st.session_state['current_article_id'] = article_id
-            
-        except Exception as e:
-            st.error(f"Errore nel caricamento dell'articolo: {e}")
+            if article:
+                st.session_state['current_article'] = article
+                st.session_state['current_article_id'] = article_id
+            else:
+                st.error("❌ Articolo non trovato nel database temporaneo.")
+                st.info("💡 Torna alla lista e seleziona nuovamente l'articolo.")
+                st.stop()
     
     # Verifica che ci sia un articolo
     if st.session_state['current_article'] is None:
         st.warning("⚠️ Nessun articolo selezionato.")
-        if st.button("⬅️ Vai alla Lista"):
-            st.markdown('<a href="/" target="_blank">Torna alla lista</a>', unsafe_allow_html=True)
+        st.markdown("""
+        ### Come procedere:
+        1. Torna alla [homepage](/)
+        2. Seleziona un articolo
+        3. Clicca su "📊 Elabora"
+        """)
         st.stop()
     
     article = st.session_state['current_article']
@@ -1220,4 +1225,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
